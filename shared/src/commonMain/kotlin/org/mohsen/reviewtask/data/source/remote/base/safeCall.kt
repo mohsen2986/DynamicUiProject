@@ -1,5 +1,6 @@
 package org.mohsen.reviewtask.data.source.remote.base
 
+import co.touchlab.kermit.Logger
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
@@ -13,10 +14,13 @@ suspend inline fun <reified R> safeCall(
     val response = try {
         call()
     } catch (e: UnresolvedAddressException) {
+        Logger.e("UnresolvedAddressException: ${e.message}")
         return TypedResult.Error(HTTPException(503, "Service Unavailable"))
     } catch (e: SerializationException) {
+        Logger.e("SerializationException: ${e.message}")
         return TypedResult.Error(HTTPException(500, "SerializationException"))
     } catch (e: NoTransformationFoundException) {
+        Logger.e("NoTransformationFoundException: ${e.message}")
         return TypedResult.Error(
             HTTPException(
                 500, "N" +
@@ -24,14 +28,17 @@ suspend inline fun <reified R> safeCall(
             )
         )
     } catch (e: Exception) {
+        Logger.e("Exception: ${e.message}")
         return TypedResult.Error(HTTPException(500, "Exception ${e.message}"))
     }
 
     return try {
         responseToResult(response)
     } catch (e: JsonConvertException) {
+        Logger.e("JsonConvertException: ${e.message}")
         TypedResult.Error(HTTPException(500, "Failed to parse response body: ${e.message}"))
     } catch (e: Exception) {
+        Logger.e("Exception: ${e.message}")
         TypedResult.Error(HTTPException(500, "Unexpected error: ${e.message}"))
     }
 }

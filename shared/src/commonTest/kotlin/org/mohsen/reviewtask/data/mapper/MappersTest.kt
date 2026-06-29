@@ -16,7 +16,7 @@ class MappersTest {
         val dto = ComponentResponseDto(
             data = ComponentDataDto(
                 type = "text",
-                text = "Username",
+                label = "Username",
                 color = "#0061A4",
                 fontSize = 16,
                 placeholder = "Enter username"
@@ -43,7 +43,7 @@ class MappersTest {
         val dto = ComponentResponseDto(
             data = ComponentDataDto(
                 type = "slider",
-                text = "Volume",
+                label = "Volume",
                 color = "#6200EA",
                 value = 50f,
                 steps = 10,
@@ -71,7 +71,7 @@ class MappersTest {
         val dto = ComponentResponseDto(
             data = ComponentDataDto(
                 type = "number",
-                text = "Age",
+                label = "Age",
                 color = "#00695C",
                 placeholder = "Enter age"
             ),
@@ -96,7 +96,7 @@ class MappersTest {
         val dto = ComponentResponseDto(
             data = ComponentDataDto(
                 type = "unknown_type",
-                text = "Label"
+                label = "Label"
             ),
             screenId = "home"
         )
@@ -163,7 +163,7 @@ class MappersTest {
         val dto = ComponentResponseDto(
             data = ComponentDataDto(
                 type = "slider",
-                text = "Brightness",
+                label = "Brightness",
                 color = "#FF9800",
                 fontSize = 14,
                 value = 75f,

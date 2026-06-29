@@ -12,7 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import org.mohsen.reviewtask.presentation.theme.AppTheme
 import androidx.compose.ui.unit.dp
-import co.touchlab.kermit.Logger
 import org.mohsen.reviewtask.domain.model.ComponentType
 import org.mohsen.reviewtask.domain.model.UiComponent
 

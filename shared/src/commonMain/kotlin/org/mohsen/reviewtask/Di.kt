@@ -18,6 +18,7 @@ import org.mohsen.reviewtask.presentation.screens.dynamicui.DynamicUiViewModel
 
 val appModule = module {
     single { provideKtorClient() }
+    // we can use the fake RemoteDataSource or use the mock server with real data source
 //    single<RemoteDataSource> { KtorRemoteDataSource(get()) }
     single<RemoteDataSource> { FakeKtorRemoteDataSource() }
     single<UiRepository> { UiRepositoryImpl(get()) }

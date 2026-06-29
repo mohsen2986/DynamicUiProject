@@ -1,135 +1,126 @@
 package org.mohsen.reviewtask.presentation.screens.dynamicui
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.*
 import org.mohsen.reviewtask.domain.model.ComponentType
 import org.mohsen.reviewtask.domain.model.UiComponent
 import org.mohsen.reviewtask.domain.repository.UiRepository
 import org.mohsen.reviewtask.domain.usecase.GetUiComponentUseCase
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class DynamicUiViewModelTest {
 
+    private val testDispatcher = StandardTestDispatcher()
+
+    @BeforeTest
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @AfterTest
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
     @Test
-    fun `initial state is Loading`() {
+    fun `initial state is Loading`() = runTest {
         val fakeRepository = FakeUiRepository()
-        val useCase = GetUiComponentUseCase(fakeRepository, Dispatchers.Default)
+        val useCase = GetUiComponentUseCase(fakeRepository, testDispatcher)
         val viewModel = DynamicUiViewModel(useCase)
 
         val state = viewModel.uiState.value
+
         assertTrue(state is UiState.Loading)
         assertFalse((state as UiState.Loading).isRefresh)
     }
 
     @Test
-    fun `fetchData with success sets Success state`() {
-        val expectedComponent = UiComponent(
+    fun `fetchData success`() = runTest {
+        val expected = UiComponent(
             type = ComponentType.TEXT,
             text = "Username",
             color = "#0061A4",
             placeholder = "Enter username"
         )
+
         val fakeRepository = FakeUiRepository().apply {
-            setSuccessResult(expectedComponent)
+            setSuccessResult(expected)
         }
-        val useCase = GetUiComponentUseCase(fakeRepository, Dispatchers.Default)
+
+        val useCase = GetUiComponentUseCase(fakeRepository, testDispatcher)
         val viewModel = DynamicUiViewModel(useCase)
 
-        // Wait for init to complete
-        Thread.sleep(100)
+        viewModel.fetchData()
+
+        advanceUntilIdle()
 
         val state = viewModel.uiState.value
+
         assertTrue(state is UiState.Success)
-        assertEquals(expectedComponent, (state as UiState.Success).component)
+        assertEquals(expected, (state as UiState.Success).component)
     }
 
     @Test
-    fun `fetchData with error sets Error state`() {
+    fun `fetchData error`() = runTest {
         val fakeRepository = FakeUiRepository().apply {
             setErrorResult("Network error")
         }
-        val useCase = GetUiComponentUseCase(fakeRepository, Dispatchers.Default)
+
+        val useCase = GetUiComponentUseCase(fakeRepository, testDispatcher)
         val viewModel = DynamicUiViewModel(useCase)
 
-        // Wait for init to complete
-        Thread.sleep(100)
+        viewModel.fetchData()
+
+        advanceUntilIdle()
 
         val state = viewModel.uiState.value
+
         assertTrue(state is UiState.Error)
         assertEquals("Network error", (state as UiState.Error).message)
     }
 
     @Test
-    fun `fetchData handles error message`() {
-        val fakeRepository = FakeUiRepository().apply {
-            setErrorResult("Network error")
-        }
-        val useCase = GetUiComponentUseCase(fakeRepository, Dispatchers.Default)
-        val viewModel = DynamicUiViewModel(useCase)
-
-        // Wait for init to complete
-        Thread.sleep(100)
-
-        val state = viewModel.uiState.value
-        assertTrue(state is UiState.Error)
-        assertEquals("Network error", state.message)
-    }
-
-    @Test
-    fun `fetchData can be called multiple times`() {
-        val firstComponent = UiComponent(
-            type = ComponentType.TEXT,
-            text = "First"
-        )
-        val secondComponent = UiComponent(
-            type = ComponentType.NUMBER,
-            text = "Second"
-        )
+    fun `multiple fetchData calls`() = runTest {
         val fakeRepository = FakeUiRepository()
-        val useCase = GetUiComponentUseCase(fakeRepository, Dispatchers.Default)
+        val useCase = GetUiComponentUseCase(fakeRepository, testDispatcher)
         val viewModel = DynamicUiViewModel(useCase)
 
-        // First fetch
-        fakeRepository.setSuccessResult(firstComponent)
+        val first = UiComponent(ComponentType.TEXT, "First")
+        val second = UiComponent(ComponentType.NUMBER, "Second")
+
+        fakeRepository.setSuccessResult(first)
         viewModel.fetchData()
-        Thread.sleep(100)
+        advanceUntilIdle()
 
-        var state = viewModel.uiState.value
-        assertTrue(state is UiState.Success)
-        assertEquals("First", (state as UiState.Success).component.text)
+        assertEquals("First", (viewModel.uiState.value as UiState.Success).component.text)
 
-        // Second fetch
-        fakeRepository.setSuccessResult(secondComponent)
+        fakeRepository.setSuccessResult(second)
         viewModel.fetchData()
-        Thread.sleep(100)
+        advanceUntilIdle()
 
-        state = viewModel.uiState.value
-        assertTrue(state is UiState.Success)
-        assertEquals("Second", (state as UiState.Success).component.text)
+        assertEquals("Second", (viewModel.uiState.value as UiState.Success).component.text)
     }
 }
 
-// Fake repository for testing
 class FakeUiRepository : UiRepository {
-    private var successResult: UiComponent? = null
-    private var errorResult: String? = null
+
+    private var success: UiComponent? = null
+    private var error: String? = null
 
     fun setSuccessResult(component: UiComponent) {
-        successResult = component
-        errorResult = null
+        success = component
+        error = null
     }
 
     fun setErrorResult(message: String?) {
-        errorResult = message
-        successResult = null
+        error = message
+        success = null
     }
 
     override suspend fun getUiComponent(): Result<UiComponent> {
         return when {
-            successResult != null -> Result.success(successResult!!)
-            errorResult != null -> Result.failure(Exception(errorResult))
+            success != null -> Result.success(success!!)
+            error != null -> Result.failure(Exception(error))
             else -> Result.failure(Exception("No result set"))
         }
     }

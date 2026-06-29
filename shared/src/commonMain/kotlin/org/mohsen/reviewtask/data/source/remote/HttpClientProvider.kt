@@ -1,6 +1,5 @@
 package org.mohsen.reviewtask.data.source.remote
 
-import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -12,7 +11,8 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 
-private const val BASE_URL = "api.example.com"
+// note: change the BASE_URL to your server address
+private const val BASE_URL = "192.168.1.100:8080"
 
 fun provideKtorClient(): HttpClient =
     HttpClient {
@@ -30,7 +30,8 @@ fun provideKtorClient(): HttpClient =
 
         defaultRequest {
             url {
-                protocol = URLProtocol.HTTPS
+                // note: change the BASE_URL to your server address and its protocol
+                protocol = URLProtocol.HTTP
                 host = BASE_URL
             }
         }

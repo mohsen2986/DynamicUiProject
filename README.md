@@ -26,6 +26,48 @@ This project is a Kotlin Multiplatform application designed to dynamically rende
 4.  **Run the `androidApp`:**
     Select the `androidApp` run configuration and choose your desired emulator or connected device. Click the "Run" button (green triangle icon) to deploy and run the application.
 
+## Running on iOS
+
+> ⚠️ Requires macOS with Xcode installed
+
+### 1. Open the iOS project
+
+Navigate to the `iosApp` folder and open the Xcode project:
+
+```bash
+cd iosApp
+open iosApp.xcodeproj
+```
+
+---
+
+## Mock Server
+
+This project uses a simple **Ktor-based mock server** to simulate backend responses during development.  
+It allows the app to dynamically render UI components without relying on a production backend.
+
+---
+
+## Purpose
+
+- Provide predictable API responses for UI rendering
+- Enable offline/local development
+- Simulate dynamic component-based API structure
+- Support fast iteration during UI/architecture development
+
+---
+
+## How to Run the Mock Server
+
+### 1. Navigate to server module
+
+```bash
+./gradlew :server:run
+```
+
+
+
+
 ## Architecture Decisions
 
 The project follows a modular and layered architecture, typical for Kotlin Multiplatform projects, to ensure a clear separation of concerns and maintainability.
@@ -36,6 +78,45 @@ The project follows a modular and layered architecture, typical for Kotlin Multi
 *   **Kotlinx Serialization:** Employed for type-safe serialization and deserialization of JSON responses into Kotlin data models (`ComponentResponseDto`).
 *   **Repository Pattern:** A `RemoteDataSource` interface abstracts the data fetching logic, allowing for easy switching between a real API and a fake/mock implementation. This enhances testability and development flexibility.
 *   **ViewModel with SavedStateHandle:** State management is handled by `ViewModel`s, utilizing `SavedStateHandle` for persistence across configuration changes (like screen rotations), ensuring the UI state is preserved without needing long-term storage.
+
+Layers:
+
+```
+Presentation
+    │
+    ▼
+  Domain
+    │
+    ▼
+   Data
+```
+
+
+## Presentation
+
+- Compose Multiplatform UI
+- ViewModel
+- StateFlow-based state management
+- UI State pattern
+
+## Domain
+
+- Business logic
+- Use Cases
+- Repository interfaces
+- Platform-independent code
+
+## Data
+
+- Ktor Client
+- DTOs
+- Repository implementations
+- Mapping between DTOs and domain models
+
+## Dependency Injection
+
+Dependencies are injected through a shared dependency graph to keep layers decoupled and easily testable.
+
 
 ## Assumptions Made
 
@@ -58,16 +139,17 @@ The project follows a modular and layered architecture, typical for Kotlin Multi
 *   **Serialization:** Uses `kotlinx.serialization` to parse JSON responses into type-safe Kotlin data models (`ComponentResponseDto`).
 *   **KMP Shared Module:** Core data models, API interfaces, and business logic reside in the `shared` module, accessible by platform-specific modules.
 *   **Fake Remote Data Source:** A `FakeKtorRemoteDataSource` is implemented to provide mock API responses, facilitating development without a live backend.
+*   **Real Mock Remote Web Server:** A Ktor-based mock backend that exposes HTTP endpoints returning `ComponentResponseDto` JSON, simulating a real API for offline development and fast iteration.
+*   **iOS Target Support:** The project is built with Kotlin Multiplatform and includes a shared architecture prepared for iOS integration. The shared module is fully compatible with iOS targets, enabling future expansion without changes to core logic.
+*   **Retry Button on Error:** The error state includes a retry action that allows users to re-fetch data and recover from failed requests.
+*   **Pull-to-Refresh:** The UI supports pull-to-refresh, allowing users to manually refresh the rendered component and fetch the latest data from the server.
+*   **Theming (Material Design 3 advanced features):** The app implements Material Design 3 theming with support for dynamic and structured UI styling, providing a consistent and modern visual experience.
+*   **Persistence Beyond Configuration Changes:** Component state is fully preserved across configuration changes such as screen rotations
+*   **Unit Tests:** Unit tests for the data layer, domain logic,mappers for some of the logic and data implemented.
+
 
 ## What is Not Implemented
-
-*   **iOS Target Support:** While the project uses Kotlin Multiplatform, an iOS target has not been implemented at this stage.
-*   **Retry Button on Error:** The error state currently displays a message, but a "Retry" button to re-fetch data is not yet implemented.
-*   **Pull-to-Refresh:** The functionality to pull down to refresh the component is not implemented.
 *   **Input Validation:** No explicit validation rules are applied to user inputs (e.g., ensuring number input is indeed a number within a range).
-*   **Theming (Material Design 3 advanced features):** Basic theming is present, but advanced Material Design 3 features or custom theming beyond the default setup are not extensively implemented.
-*   **Persistence Beyond Configuration Changes:** Component state is not persisted when the application is closed or in the background.
-*   **Unit Tests:** Unit tests for the data layer, domain logic, or UI components are not yet included.
 
 ## Screenshots / Screen Recording
 
@@ -80,6 +162,6 @@ The project follows a modular and layered architecture, typical for Kotlin Multi
 |--------------------------------|--------------------------------|--------------------------------|
 
 ## Demo video
-[Watch Demo](./video_demo.mp4)
+[Watch Demo](media/video_demo.mp4)
 
 ---
