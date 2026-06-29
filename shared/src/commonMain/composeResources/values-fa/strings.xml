@@ -1,0 +1,7 @@
+<resources>
+    <string name="error_prefix">خطا: %s</string>
+    <string name="retry">تلاش مجدد</string>
+    <string name="unknown_component">نوع کامپوننت ناشناخته: %s</string>
+    <string name="component_image_desc">تصویر کامپوننت</string>
+    <string name="unknown_error">خطای ناشناخته رخ داد</string>
+</resources>

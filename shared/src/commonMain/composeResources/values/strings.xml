@@ -1,0 +1,7 @@
+<resources>
+    <string name="error_prefix">Error: %s</string>
+    <string name="retry">Retry</string>
+    <string name="unknown_component">Unknown component type: %s</string>
+    <string name="component_image_desc">Component Image</string>
+    <string name="unknown_error">Unknown error occurred</string>
+</resources>
